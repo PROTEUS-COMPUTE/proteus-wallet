@@ -1,0 +1,179 @@
+name: build-wallet
+
+# Tag a release (git tag v0.1.0 && git push --tags) to build the Windows
+# installer and attach it to a GitHub Release.
+#
+# Tags only, no workflow_dispatch. Dispatched from a branch, github.ref_name is
+# "main", and tauri-action would happily create a release tagged "main" and an
+# update manifest advertising version "main" to every installed copy.
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    # Lifted to the job so a step can test whether it is set: the `secrets`
+    # context is not allowed in a step-level `if`, and using it there makes the
+    # whole workflow invalid.
+    env:
+      MINER_TOKEN: ${{ secrets.MINER_RELEASE_TOKEN }}
+    steps:
+      # Fails in seconds rather than after a twelve minute build, and before
+      # anything is published: a tag whose installer cannot reach the public
+      # repo should not produce a private release either.
+      - name: Check the cross-repo token is present
+        shell: bash
+        run: |
+          if [ -z "${MINER_TOKEN:-}" ]; then
+            echo "::error::MINER_RELEASE_TOKEN is not set, so the installer would never reach the public repo."
+            echo "Add a PAT with Contents: read and write on PROTEUS-COMPUTE/proteus-miner"
+            echo "under Settings > Secrets and variables > Actions, named MINER_RELEASE_TOKEN."
+            exit 1
+          fi
+          echo "token present"
+
+      - uses: actions/checkout@v4
+
+      # The version lives in three files and the updater compares the tag to
+      # what the binary reports. A mismatch ships an app that offers the same
+      # update forever, and reinstalling never clears it. Checked here, in
+      # seconds, rather than discovered by users.
+      - name: The tag must match the declared version
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME#v}"
+          conf=$(jq -r .version src-tauri/tauri.conf.json)
+          cargo=$(grep -m1 '^version = ' src-tauri/Cargo.toml | cut -d'"' -f2)
+          echo "tag=$tag tauri.conf.json=$conf Cargo.toml=$cargo"
+          if [ "$tag" != "$conf" ] || [ "$tag" != "$cargo" ]; then
+            echo "::error::bump src-tauri/tauri.conf.json and src-tauri/Cargo.toml to $tag, commit, then retag."
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          # By default the cache is thrown away when the run fails, and every
+          # failure here was on the last step, after twenty-five minutes of
+          # compiling. Keeping it means a retry costs minutes, not half an hour.
+          cache-on-failure: true
+
+      # ci, not install: the release build must be the tree the lockfile pins,
+      # not whatever a caret range resolves to on the runner that day.
+      - name: Install frontend deps
+        run: npm ci
+
+      # Build only. No tagName here on purpose: given one, tauri-action also
+      # creates a release in THIS repository, which is both useless (nobody can
+      # download from a private repo) and the thing that failed the first run.
+      # Publishing is the next step, and it goes where users actually are.
+      - name: Build the app and the installer
+        uses: tauri-apps/tauri-action@v0
+        env:
+          # Signs the NSIS bundle and emits the .sig the updater checks before it
+          # installs anything. Without these the build still succeeds and
+          # produces an artifact every installed app will refuse.
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+
+      # This repository stays private, so nothing published here would be
+      # downloadable and an installed app polling it would get a 404 forever.
+      # What users get lives in ONE fixed release of the PUBLIC proteus-miner
+      # repo, tagged `wallet-latest`, whose asset is overwritten on every
+      # version. Same arrangement as the miner desktop app, for the same reason:
+      # the download link on the site, in the docs and on Discord must never
+      # change, and neither must the url the updater was built to poll.
+      #
+      # The asset is renamed to a version-free filename for that reason: tauri
+      # emits PROTEUS Wallet_<version>_x64-setup.exe, which would break the link
+      # on every bump.
+      #
+      # No `if:` guard on this step, on purpose. The token is checked in the
+      # first seconds of the job, so reaching this point means it exists; if the
+      # upload then fails the run must go red. This is the step that delivers to
+      # users, and a delivery that silently does not happen is worse than a
+      # build that stops.
+      - name: Publish the installer and the update manifest
+        shell: bash
+        env:
+          GH_TOKEN: ${{ env.MINER_TOKEN }}
+        run: |
+          set -euo pipefail
+          MINER=PROTEUS-COMPUTE/proteus-miner
+          TAG=wallet-latest
+          version="${GITHUB_REF_NAME#v}"
+
+          # The github api answers 503 often enough to matter, and it did on the
+          # first attempt at this step: twenty-five minutes of build thrown away
+          # by a hiccup on the last call. gh does not retry on its own.
+          retry() {
+            local n=1
+            until "$@"; do
+              if [ $n -ge 5 ]; then
+                echo "::error::giving up on: $* (5 attempts)"
+                return 1
+              fi
+              echo "attempt $n failed, retrying in $((n * 10))s: $*"
+              sleep $((n * 10))
+              n=$((n + 1))
+            done
+          }
+
+          exe=$(find src-tauri/target/release/bundle/nsis -name '*-setup.exe' | head -1)
+          [ -n "$exe" ] || { echo "::error::no NSIS installer found"; exit 1; }
+          cp "$exe" PROTEUS-Wallet-Setup.exe
+
+          # The signature is the CONTENT of the .sig tauri just produced, not a
+          # path. The app checks it against the public key baked into its own
+          # binary, which is what stops anyone who can write to this release
+          # from pushing a build to every wallet.
+          sig=$(find src-tauri/target/release/bundle/nsis -name '*-setup.exe.sig' | head -1)
+          [ -n "$sig" ] || { echo "::error::no .sig: is TAURI_SIGNING_PRIVATE_KEY set?"; exit 1; }
+
+          # jq rather than a heredoc: the signature is base64 and has to survive
+          # into the json verbatim.
+          jq -n --arg v "$version" --arg s "$(cat "$sig")" \
+                --arg u "https://github.com/${MINER}/releases/download/${TAG}/PROTEUS-Wallet-Setup.exe" \
+             '{version: $v,
+               notes: "See the release notes on GitHub.",
+               platforms: {"windows-x86_64": {signature: $s, url: $u}}}' > latest.json
+          jq -e '.platforms."windows-x86_64".signature | length > 0' latest.json >/dev/null \
+            || { echo "::error::empty signature in latest.json"; exit 1; }
+
+          # The fixed release has to exist before it can be clobbered. This is
+          # idempotent, so it can be retried: already there means done, and any
+          # other failure (a 503 on create is what broke the first attempt at
+          # this) comes back non-zero and gets another go.
+          ensure_release() {
+            gh release view "$TAG" --repo "$MINER" >/dev/null 2>&1 && return 0
+            local out
+            out=$(gh release create "$TAG" --repo "$MINER" \
+                    --title "PROTEUS Wallet for Windows" \
+                    --notes "bootstrap" --latest=false 2>&1) && return 0
+            echo "$out"
+            # lost a race with another run: fine, the release exists
+            grep -qi "already exists" <<<"$out"
+          }
+          retry ensure_release
+
+          retry gh release upload "$TAG" PROTEUS-Wallet-Setup.exe latest.json --clobber --repo "$MINER"
+
+          # The tag never changes, so the body is the only place the current
+          # version is visible.
+          retry gh release edit "$TAG" --repo "$MINER" --notes "Non-custodial \$PRTS wallet for Windows (currently ${GITHUB_REF_NAME}).
+
+          This tag always holds the current installer, so the download link never changes.
+          Installed copies check this release and offer the update from inside the app.
+
+          Your keys are generated on your machine and stored in an encrypted keystore
+          only your password opens. Nothing is sent to a server."

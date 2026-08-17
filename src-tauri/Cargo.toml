@@ -1,6 +1,6 @@
 [package]
 name = "proteus-wallet"
-version = "0.1.2"
+version = "0.1.3"
 description = "Non-custodial $PRTS wallet for Windows"
 authors = ["Proteus Compute"]
 edition = "2021"

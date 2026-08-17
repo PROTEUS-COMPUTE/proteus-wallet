@@ -10,7 +10,7 @@ import { RPC_URL, useApi } from '../lib/api';
  * always visible, naming the endpoint it is dialling.
  */
 export default function ChainStatus() {
-  const { status } = useApi();
+  const { status, failure } = useApi();
   const host = RPC_URL.replace(/^wss?:\/\//, '');
 
   return (
@@ -23,6 +23,9 @@ export default function ChainStatus() {
             ? `connecting to ${host}…`
             : `${host} unreachable, retrying…`}
       </div>
+      {failure && status !== 'connecte' && (
+        <p className="text-[11.5px] text-faint mt-1 pl-3.5 break-words">{failure}</p>
+      )}
     </footer>
   );
 }

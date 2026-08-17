@@ -14,7 +14,9 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import Wallet from './Wallet';
+import Ambient from './components/Ambient';
 import UpdateBanner from './components/UpdateBanner';
+import ChainStatus from './components/ChainStatus';
 import { ApiProvider } from './lib/api';
 import { loadAccounts } from './lib/store';
 
@@ -24,11 +26,16 @@ void loadAccounts().finally(() => {
   root.render(
     <StrictMode>
       <ApiProvider>
+        {/* The lime wash and the circuit board, same layer as the site: the
+            frosted cards have nothing to blur over a flat background and fall
+            back to looking plain white without it. */}
+        <Ambient />
         <div className="min-h-screen flex flex-col">
           <UpdateBanner />
           <main className="flex-1 w-full max-w-[560px] mx-auto px-6 py-10">
             <Wallet />
           </main>
+          <ChainStatus />
         </div>
       </ApiProvider>
     </StrictMode>

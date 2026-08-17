@@ -59,8 +59,12 @@ export default function CreateAccount({ onDone }: Props) {
     setBusy(true);
     try {
       setResult(await createAccount(name.trim() || 'proteus account', password));
-    } catch {
-      setError('could not create the account, try again');
+    } catch (err) {
+      // Say what actually went wrong. "try again" was hiding a disk error
+      // behind an invitation to repeat the exact thing that just failed.
+      setError(
+        `could not create the account: ${err instanceof Error ? err.message : String(err)}`
+      );
     } finally {
       setBusy(false);
     }
@@ -168,7 +172,7 @@ export default function CreateAccount({ onDone }: Props) {
       {error && <ErrorNote>{error}</ErrorNote>}
       <InfoNote>
         the seed is never stored in clear text: only a keystore encrypted with your password is
-        kept in this browser.
+        written to this computer.
       </InfoNote>
       <Button type="submit" disabled={busy}>
         {busy ? 'generating…' : 'generate the account (sr25519)'}

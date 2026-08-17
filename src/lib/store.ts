@@ -19,7 +19,6 @@
 import {
   BaseDirectory,
   exists,
-  mkdir,
   readTextFile,
   remove,
   rename,
@@ -66,7 +65,9 @@ export function readAll(): StoredAccount[] {
 }
 
 async function persist(list: StoredAccount[]): Promise<void> {
-  await mkdir('', { ...DIR, recursive: true }).catch(() => undefined);
+  // The directory itself is created by the rust side at startup: the filesystem
+  // permission covers files inside it, not the directory, so it cannot be made
+  // from here.
   const body = JSON.stringify(list, null, 2);
   // temp + rename: rename is atomic on the same volume, so accounts.json holds
   // either the old content or the new one, never a truncated mix.

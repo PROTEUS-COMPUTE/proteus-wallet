@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::fs;
+use tauri::Manager;
 
 /// Write an account backup where the OS save dialog said to.
 ///
@@ -23,6 +24,17 @@ fn write_backup(path: String, contents: String) -> Result<(), String> {
 // a file to keep accounts in, a save dialog, the clipboard, and the updater.
 fn main() {
     tauri::Builder::default()
+        .setup(|app| {
+            // On a fresh install %APPDATA%\com.proteus-agent.wallet does not
+            // exist yet, and writing accounts.json into a directory that is not
+            // there fails. Creating it from the frontend is not an option: the
+            // filesystem permission is scoped to files INSIDE that directory,
+            // not to the directory itself. So it is made here, once, before the
+            // window opens.
+            let dir = app.path().app_data_dir()?;
+            std::fs::create_dir_all(&dir)?;
+            Ok(())
+        })
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_clipboard_manager::init())

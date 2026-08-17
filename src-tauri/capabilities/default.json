@@ -1,0 +1,32 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "What the wallet window is allowed to do. Deliberately narrow: the filesystem is pinned to the app data directory, and links can only open our own domains.",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:event:default",
+    {
+      "identifier": "fs:scope",
+      "allow": [{ "path": "$APPDATA/*" }]
+    },
+    "fs:allow-read-text-file",
+    "fs:allow-write-text-file",
+    "fs:allow-exists",
+    "fs:allow-mkdir",
+    "fs:allow-remove",
+    "fs:allow-rename",
+    "dialog:allow-save",
+    "dialog:allow-confirm",
+    "clipboard-manager:allow-write-text",
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [
+        { "url": "https://proteus-agent.com/*" },
+        { "url": "https://app.proteus-agent.com/*" }
+      ]
+    },
+    "updater:default",
+    "process:allow-restart"
+  ]
+}

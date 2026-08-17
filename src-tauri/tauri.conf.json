@@ -1,0 +1,55 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "PROTEUS Wallet",
+  "version": "0.1.1",
+  "identifier": "com.proteus-agent.wallet",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "PROTEUS Wallet",
+        "width": 720,
+        "height": 900,
+        "minWidth": 520,
+        "minHeight": 640,
+        "resizable": true,
+        "theme": "Light"
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost https://app.proteus-agent.com https://api.github.com https://github.com https://objects.githubusercontent.com wss://rpc.proteus-agent.com"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico",
+      "icons/icon.png"
+    ],
+    "publisher": "Proteus Compute",
+    "category": "Finance",
+    "shortDescription": "Non-custodial $PRTS wallet for Windows",
+    "longDescription": "Hold, send and stake $PRTS. Keys are generated on your machine and stored in an encrypted keystore only your password opens.",
+    "createUpdaterArtifacts": true
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://github.com/PROTEUS-COMPUTE/proteus-miner/releases/download/wallet-latest/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDEzRkYxOTkyODY2RjU4MjUKUldRbFdHK0draG4vRTNoT2RjZ29wM1VmMU9vYXlRRXJDZk1JZ3VBa3RZcXVVUTRidmxtWVVFc0EK",
+      "windows": {
+        "installMode": "passive"
+      }
+    }
+  }
+}

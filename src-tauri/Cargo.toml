@@ -1,0 +1,24 @@
+[package]
+name = "proteus-wallet"
+version = "0.1.1"
+description = "Non-custodial $PRTS wallet for Windows"
+authors = ["Proteus Compute"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+# generate_context! expands to code that names both of these directly
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri-plugin-clipboard-manager = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-process = "2"
+tauri-plugin-updater = "2"
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]

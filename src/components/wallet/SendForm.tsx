@@ -4,7 +4,7 @@ import type { SubmittableExtrinsic } from '@polkadot/api/types';
 import type { ISubmittableResult } from '@polkadot/types/types';
 import { Button, ErrorNote, Input, Label } from '../ui';
 import { isValidAddress, listStored, unlockPair } from '../../lib/wallet';
-import { formatPrts, parsePrts } from '../../lib/format';
+import { formatPrts, formatPrtsInput, parsePrts } from '../../lib/format';
 import TxReceipt from './TxReceipt';
 import type { WalletAccount } from './types';
 
@@ -147,9 +147,13 @@ export default function SendForm({ api, from, balance, staked = 0n, onClose }: P
           required
         />
         {balance !== null && (
-          <p className="text-[12.5px] text-muted lowercase mt-1.5">
+          <button
+            type="button"
+            onClick={() => setAmount(formatPrtsInput(balance))}
+            className="block text-[12.5px] text-muted lowercase mt-1.5 hover:text-ink transition-colors"
+          >
             available: {formatPrts(balance)} prts
-          </p>
+          </button>
         )}
       </div>
       {from.kind === 'local' && (

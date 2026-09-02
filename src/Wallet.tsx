@@ -9,6 +9,7 @@ import ReferralCard from './components/wallet/ReferralCard';
 import ReferredByCard from './components/wallet/ReferredByCard';
 import SendForm from './components/wallet/SendForm';
 import StakeForm from './components/wallet/StakeForm';
+import UnlockCountdown from './components/wallet/UnlockCountdown';
 import HistoryPanel from './components/wallet/HistoryPanel';
 import type { WalletAccount } from './components/wallet/types';
 import { useApi } from './lib/api';
@@ -393,6 +394,9 @@ export default function Wallet() {
             ) : (
               <>
                 <Pockets />
+                <div className="px-2 pt-2">
+                  <UnlockCountdown api={api} />
+                </div>
 
                 <div className="px-2 pt-4 pb-2">
                   {!api ? (

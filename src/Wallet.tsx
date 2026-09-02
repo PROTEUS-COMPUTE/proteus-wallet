@@ -402,7 +402,7 @@ export default function Wallet() {
                   {!api ? (
                     <InfoNote>rpc unreachable for now, reconnecting…</InfoNote>
                   ) : tab === 'send' && selected ? (
-                    <SendForm api={api} from={selected} balance={free} onClose={() => setTab('send')} />
+                    <SendForm api={api} from={selected} balance={free} staked={staked} onClose={() => setTab('send')} />
                   ) : tab === 'receive' && selected ? (
                     <ReceivePanel account={selected} />
                   ) : tab === 'stake' && selected ? (

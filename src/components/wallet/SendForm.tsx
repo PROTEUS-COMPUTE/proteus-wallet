@@ -12,12 +12,20 @@ type Props = {
   api: ApiPromise;
   from: WalletAccount;
   balance: bigint | null;
+  staked?: bigint;
   onClose: () => void;
 };
 
+function transferError(raw: string): string {
+  if (/custom error:\s*50/i.test(raw) || /DailyOutflowLimitExceeded/i.test(raw)) {
+    return 'over the 1.5% daily withdrawal limit';
+  }
+  return raw || 'sending failed, try again';
+}
+
 type TransferFn = (dest: string, value: bigint) => SubmittableExtrinsic<'promise'>;
 
-export default function SendForm({ api, from, balance, onClose }: Props) {
+export default function SendForm({ api, from, balance, staked = 0n, onClose }: Props) {
   const [dest, setDest] = useState('');
   const [amount, setAmount] = useState('');
   const [password, setPassword] = useState('');
@@ -44,6 +52,13 @@ export default function SendForm({ api, from, balance, onClose }: Props) {
       setError('amount higher than the available balance');
       return;
     }
+    if (balance !== null) {
+      const cap = ((balance + staked) * 150n) / 10_000n;
+      if (rao > cap) {
+        setError(`over the 1.5% daily withdrawal limit (max ${formatPrts(cap)} prts today)`);
+        return;
+      }
+    }
 
     /* transferKeepAlive if available in the metadata, otherwise transferAllowDeath, otherwise transfer */
     const balancesTx = api.tx.balances as unknown as Record<string, TransferFn | undefined>;
@@ -68,7 +83,7 @@ export default function SendForm({ api, from, balance, onClose }: Props) {
           const meta = api.registry.findMetaError(result.dispatchError.asModule);
           msg = `${meta.section}.${meta.name}`;
         }
-        setError(`transfer rejected by the chain: ${msg}`);
+        setError(transferError(msg));
         setProgress(null);
         setBusy(false);
         unsub?.();
@@ -100,7 +115,7 @@ export default function SendForm({ api, from, balance, onClose }: Props) {
       setProgress((p) => p ?? 'transaction sent…');
     } catch (err) {
       const msg = err instanceof Error ? err.message : '';
-      setError(msg || 'sending failed, try again');
+      setError(transferError(msg));
       setProgress(null);
       setBusy(false);
     }

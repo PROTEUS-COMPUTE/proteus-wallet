@@ -25,7 +25,7 @@ function transferError(raw: string): string {
 
 type TransferFn = (dest: string, value: bigint) => SubmittableExtrinsic<'promise'>;
 
-export default function SendForm({ api, from, balance, staked = 0n, onClose }: Props) {
+export default function SendForm({ api, from, balance, onClose }: Props) {
   const [dest, setDest] = useState('');
   const [amount, setAmount] = useState('');
   const [password, setPassword] = useState('');
@@ -52,13 +52,10 @@ export default function SendForm({ api, from, balance, staked = 0n, onClose }: P
       setError('amount higher than the available balance');
       return;
     }
-    if (balance !== null) {
-      const cap = ((balance + staked) * 150n) / 10_000n;
-      if (rao > cap) {
-        setError(`over the 1.5% daily withdrawal limit (max ${formatPrts(cap)} prts today)`);
-        return;
-      }
-    }
+    // The chain is the only authority on transfer limits. When the outflow cap
+    // is active it rejects an over-limit transfer at the pool and transferError
+    // turns that into a readable message; when it is off (OutflowLimitEnd = 0)
+    // there is no limit. A hardcoded client-side cap here only diverges from it.
 
     /* transferKeepAlive if available in the metadata, otherwise transferAllowDeath, otherwise transfer */
     const balancesTx = api.tx.balances as unknown as Record<string, TransferFn | undefined>;

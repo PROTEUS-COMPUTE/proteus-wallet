@@ -25,6 +25,10 @@ type StakeTx = (hotkey: string, amount: bigint) => SubmittableExtrinsic<'promise
    chain refuses to unstake before the unlock block. `d: 0` is the flexible path
    (plain add_stake, unstake any time). Kept in sync with loyalty.py. */
 const BLOCKS_PER_DAY = 7200; // 86400 / 12
+/* Anti-dump: while the cap is active, a coldkey can unstake at most 1.5% of its
+   holdings (free + total stake) per rolling day. Mirrors the runtime OUTFLOW_BPS
+   so the wallet can show the limit instead of letting the chain reject blindly. */
+const OUTFLOW_BPS = 150n;
 const LOCK_TIERS = [
   { d: 0, w: 'flexible', blocks: 0 },
   { d: 3, w: '1.10x', blocks: 3 * BLOCKS_PER_DAY },
@@ -54,6 +58,10 @@ export default function StakeForm({ api, from, balance, onClose }: Props) {
   const [done, setDone] = useState<{ txHash: string; blockNumber: number | null } | null>(null);
   // what the receipt should say: a plain stake/unstake, or a one-click delegate
   const [receiptKind, setReceiptKind] = useState<string>('stake');
+  // anti-dump: end block of the cap, current head, and whether this coldkey is exempt
+  const [capEnd, setCapEnd] = useState<number | null>(null);
+  const [blockNow, setBlockNow] = useState<number | null>(null);
+  const [exempt, setExempt] = useState(false);
 
   /* the coldkey's staked hotkeys + amounts (that's where mining rewards sit) */
   useEffect(() => {
@@ -84,8 +92,51 @@ export default function StakeForm({ api, from, balance, onClose }: Props) {
     };
   }, [api, from.address]);
 
+  /* the daily unstake cap: is it still running, and is this coldkey exempt from it.
+     Read from chain (not hardcoded) so the wallet tracks the runtime, exempt wallets
+     included, the way the on-chain check does. */
+  useEffect(() => {
+    let alive = true;
+    const sub = (api.query as unknown as {
+      subtensorModule?: {
+        outflowLimitEnd?: () => Promise<{ toNumber(): number }>;
+        outflowExempt?: (a: string) => Promise<{ toJSON(): unknown }>;
+      };
+    }).subtensorModule;
+    (async () => {
+      try {
+        const [end, header, ex] = await Promise.all([
+          sub?.outflowLimitEnd ? sub.outflowLimitEnd().then((v) => v.toNumber()) : Promise.resolve(0),
+          api.rpc.chain.getHeader().then((h) => h.number.toNumber()),
+          sub?.outflowExempt ? sub.outflowExempt(from.address).then((v) => v.toJSON() === true) : Promise.resolve(false),
+        ]);
+        if (!alive) return;
+        setCapEnd(end);
+        setBlockNow(header);
+        setExempt(ex);
+      } catch {
+        /* ignore, the chain stays the source of truth */
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [api, from.address]);
+
   const stakedOn = (hk: string): bigint => staked.find((s) => s.hotkey === hk)?.amount ?? 0n;
   const max = mode === 'unstake' ? stakedOn(hotkey) : balance ?? 0n;
+
+  /* Cap is live while now < end and the wallet is not exempt. The daily budget is
+     1.5% of holdings (free + everything staked). ponytail: this shows the fresh
+     daily budget; it does not subtract what was already unstaked today (the runtime
+     tracks that in 25 hourly buckets we don't mirror). The chain still has the last
+     word: an over-budget unstake is rejected and the message below explains it. Add
+     bucket mirroring only if miners actually ask for a to-the-rao number. */
+  const capActive = capEnd !== null && capEnd > 0 && blockNow !== null && blockNow < capEnd && !exempt;
+  const totalStaked = staked.reduce((sum, s) => sum + s.amount, 0n);
+  const holdings = (balance ?? 0n) + totalStaked;
+  const dailyCap = mode === 'unstake' && capActive ? (holdings * OUTFLOW_BPS) / 10_000n : null;
+  const overCap = dailyCap !== null && (parsePrts(amount) ?? 0n) > dailyCap;
 
   /* what the amount being typed would earn if it went to the router */
   const delegation = useDelegation();
@@ -108,7 +159,10 @@ export default function StakeForm({ api, from, balance, onClose }: Props) {
         let msg = result.dispatchError.toString();
         if (result.dispatchError.isModule) {
           const meta = api.registry.findMetaError(result.dispatchError.asModule);
-          msg = `${meta.section}.${meta.name}`;
+          msg =
+            meta.name === 'DailyOutflowLimitExceeded'
+              ? "over today's 1.5% daily unstake limit, try a smaller amount or come back tomorrow"
+              : `${meta.section}.${meta.name}`;
         }
         setError(`rejected by the chain: ${msg}`);
         setProgress(null);
@@ -359,6 +413,12 @@ export default function StakeForm({ api, from, balance, onClose }: Props) {
         <p className="text-[12.5px] text-muted lowercase mt-1.5">
           {mode === 'unstake' ? 'staked' : 'available'}: {formatPrts(max)} prts
         </p>
+        {dailyCap !== null && (
+          <p className={cx('text-[12px] lowercase mt-1', overCap ? 'text-amber-600' : 'text-faint')}>
+            today you can unstake up to {formatPrts(dailyCap)} prts · 1.5% of your holdings a day
+            {overCap ? ' · more than this is rejected today' : ''}
+          </p>
+        )}
       </div>
 
       {from.kind === 'local' && (

@@ -61,7 +61,7 @@ export default function UnlockCountdown({ api }: Props) {
       <span className="w-[7px] h-[7px] rounded-sm bg-brand-lime shadow-[0_0_0_3px_rgba(159,255,0,0.18)] shrink-0" />
       <p className="text-[12.5px] lowercase text-ink-soft leading-snug">
         <span className="font-medium text-ink tabular-nums">D-{days}</span>
-        {' '}until full withdrawals · 1.5% of holdings / day
+        {' '}until unlimited unstaking · 1.5% of holdings / day
       </p>
     </div>
   );

@@ -32,10 +32,10 @@ const OUTFLOW_BPS = 150n;
 const LOCK_TIERS = [
   { d: 0, w: 'flexible', blocks: 0 },
   { d: 3, w: '1.10x', blocks: 3 * BLOCKS_PER_DAY },
-  { d: 7, w: '1.25x', blocks: 7 * BLOCKS_PER_DAY },
-  { d: 10, w: '1.40x', blocks: 10 * BLOCKS_PER_DAY },
-  { d: 20, w: '1.70x', blocks: 20 * BLOCKS_PER_DAY },
-  { d: 50, w: '2.20x', blocks: 50 * BLOCKS_PER_DAY },
+  { d: 7, w: '1.125x', blocks: 7 * BLOCKS_PER_DAY },
+  { d: 10, w: '1.15x', blocks: 10 * BLOCKS_PER_DAY },
+  { d: 20, w: '1.175x', blocks: 20 * BLOCKS_PER_DAY },
+  { d: 50, w: '1.20x', blocks: 50 * BLOCKS_PER_DAY },
 ];
 /* The wallet never stakes flexibly: every stake through this UI locks for a chosen
    duration, including "move to the router" (Joseph: "quand on stake, on bloque").

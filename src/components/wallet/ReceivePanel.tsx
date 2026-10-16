@@ -39,7 +39,7 @@ export default function ReceivePanel({ account }: Props) {
       <div className="flex justify-center">
         {svg ? (
           <div
-            className="bg-white rounded-[14px] border border-black/[0.07] p-4 [&_svg]:w-[180px] [&_svg]:h-[180px]"
+            className="bg-white rounded-[14px] border border-white/[0.09] p-4 [&_svg]:w-[180px] [&_svg]:h-[180px]"
             dangerouslySetInnerHTML={{ __html: svg }}
           />
         ) : (

@@ -24,7 +24,7 @@ export default function ChainStatus() {
             : `${host} unreachable, retrying…`}
       </div>
       {failure && status !== 'connecte' && (
-        <p className="text-[11.5px] text-faint mt-1 pl-3.5 break-words">{failure}</p>
+        <p className="text-[11.5px] text-muted mt-1 pl-3.5 break-words">{failure}</p>
       )}
     </footer>
   );

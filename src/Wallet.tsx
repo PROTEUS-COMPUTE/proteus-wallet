@@ -169,7 +169,7 @@ export default function Wallet() {
     <div className="relative" ref={pickerRef}>
       <button
         onClick={() => setPickerOpen((v) => !v)}
-        className="inline-flex items-center gap-2 rounded-full bg-ink text-white pl-3 pr-2.5 py-2 text-[13.5px] lowercase font-medium hover:bg-black transition-colors max-w-[190px]"
+        className="inline-flex items-center gap-2 rounded-full bg-ink text-night pl-3 pr-2.5 py-2 text-[13.5px] lowercase font-medium hover:bg-smoke transition-colors max-w-[190px]"
       >
         <span className="w-1.5 h-1.5 rounded-full bg-brand-lime shrink-0" />
         <span className="truncate">{selected ? selected.name : 'select an account'}</span>
@@ -177,7 +177,7 @@ export default function Wallet() {
       </button>
 
       {pickerOpen && (
-        <div className="absolute right-0 top-[calc(100%+8px)] z-20 w-[300px] rounded-[12px] border border-white/70 bg-white/80 backdrop-blur-2xl shadow-[0_1px_2px_rgba(20,20,40,0.04),0_18px_50px_-20px_rgba(20,20,60,0.3)] p-2">
+        <div className="absolute right-0 top-[calc(100%+8px)] z-20 w-[300px] rounded-[12px] border border-line bg-night p-2">
           {allAccounts.length === 0 && (
             <p className="text-[12.5px] text-muted lowercase px-2 py-3">no account yet.</p>
           )}
@@ -186,7 +186,7 @@ export default function Wallet() {
               key={a.address}
               className={cx(
                 'flex items-center gap-2 rounded-[8px] px-2.5 py-2 transition-colors',
-                selectedAddr === a.address ? 'bg-brand-lime/20' : 'hover:bg-black/[0.04]'
+                selectedAddr === a.address ? 'bg-brand-lime/20' : 'hover:bg-white/[0.04]'
               )}
             >
               <button
@@ -215,7 +215,7 @@ export default function Wallet() {
               {a.kind === 'local' && (
                 <button
                   onClick={() => void deleteLocal(a.address)}
-                  className="w-6 h-6 grid place-items-center rounded-full text-muted hover:text-red-600 hover:bg-red-50 transition-colors shrink-0"
+                  className="w-6 h-6 grid place-items-center rounded-full text-muted hover:text-red-400 hover:bg-red-500/10 transition-colors shrink-0"
                   aria-label="remove account"
                 >
                   <Trash2 className="w-3 h-3" />
@@ -224,13 +224,13 @@ export default function Wallet() {
             </div>
           ))}
 
-          <div className="border-t border-black/[0.06] mt-2 pt-2 flex flex-col gap-1">
+          <div className="border-t border-white/[0.09] mt-2 pt-2 flex flex-col gap-1">
             <button
               onClick={() => {
                 setSheet('create');
                 setPickerOpen(false);
               }}
-              className="flex items-center gap-2 rounded-[8px] px-2.5 py-2 text-[13px] lowercase text-ink-soft hover:bg-black/[0.04] transition-colors"
+              className="flex items-center gap-2 rounded-[8px] px-2.5 py-2 text-[13px] lowercase text-ink-soft hover:bg-white/[0.04] transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
               create an account
@@ -240,7 +240,7 @@ export default function Wallet() {
                 setSheet('import');
                 setPickerOpen(false);
               }}
-              className="flex items-center gap-2 rounded-[8px] px-2.5 py-2 text-[13px] lowercase text-ink-soft hover:bg-black/[0.04] transition-colors"
+              className="flex items-center gap-2 rounded-[8px] px-2.5 py-2 text-[13px] lowercase text-ink-soft hover:bg-white/[0.04] transition-colors"
             >
               <WalletIcon className="w-3.5 h-3.5" />
               import an account
@@ -255,7 +255,7 @@ export default function Wallet() {
      mining paid you. The arrow between them is what unstaking actually does. */
   const Pockets = () => (
     <>
-      <div className="rounded-[12px] border border-white/60 bg-white/35 p-4">
+      <div className="rounded-[12px] border border-line bg-white/[0.03] p-4">
         <div className="flex items-start justify-between gap-3">
           <span className="text-[12.5px] text-muted lowercase">available balance</span>
           <AccountPill />
@@ -270,12 +270,12 @@ export default function Wallet() {
           <Skeleton className="h-10 w-44 mt-2" />
         )}
         {selected && (
-          <div className="font-mono text-[11.5px] text-faint break-all mt-1.5">{selected.address}</div>
+          <div className="font-mono text-[11.5px] text-muted break-all mt-1.5">{selected.address}</div>
         )}
       </div>
 
       <div className="relative h-0 flex justify-center">
-        <div className="-mt-3.5 w-8 h-8 grid place-items-center rounded-[10px] border border-white/70 bg-white/70 backdrop-blur-xl text-ink-soft z-10">
+        <div className="-mt-3.5 w-8 h-8 grid place-items-center rounded-[10px] border border-line bg-white/[0.03] backdrop-blur-xl text-ink-soft z-10">
           <ArrowDown className="w-4 h-4" />
         </div>
       </div>
@@ -325,7 +325,7 @@ export default function Wallet() {
                   aria-label={t.label}
                   className={cx(
                     'inline-flex items-center justify-center gap-1 rounded-full px-2.5 min-[520px]:px-2 py-1.5 text-[13.5px] lowercase transition-colors shrink-0',
-                    active ? 'bg-ink text-white font-medium' : 'text-muted hover:text-ink'
+                    active ? 'bg-ink text-night font-medium' : 'text-muted hover:text-ink'
                   )}
                 >
                   <t.icon className="w-3.5 h-3.5 shrink-0" />
@@ -412,7 +412,7 @@ export default function Wallet() {
                   ) : tab === 'refer' && selected ? (
                     <div className="space-y-7">
                       <ReferralCard account={selected} />
-                      <div className="border-t border-black/[0.06] pt-6">
+                      <div className="border-t border-white/[0.09] pt-6">
                         <ReferredByCard account={selected} />
                       </div>
                     </div>

@@ -1,18 +1,31 @@
+import defaultTheme from 'tailwindcss/defaultTheme';
+
 /** @type {import('tailwindcss').Config} */
 export default {
+  // <html class="dark"> is set in index.html: the explorer has one theme, the
+  // landing's night charter, so the chart registry's dark variables apply.
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
         'brand-lime': '#9fff00',
-        'brand-lime-deep': '#7ad000',
-        'bg-base': '#EDEEF5',
-        'bg-2': '#E6E7F0',
-        surface: '#FFFFFF',
-        ink: '#1a1a1a',
-        'ink-soft': '#4a4a4e',
-        muted: '#8e8e8e',
-        faint: '#b3b4bd',
+        'brand-lime-deep': '#8fe600',
+        // Night charter, shared with the landing. The legacy names are remapped
+        // in place rather than renamed: the explorer only ever had one theme, so
+        // every `text-ink` / `text-muted` in the app turns over with this block.
+        'bg-base': '#000000',
+        'bg-2': '#141414',
+        surface: '#0a0a0a',
+        ink: '#f7f7f4',
+        'ink-soft': '#b8b8b8',
+        muted: '#8c8c8c',
+        faint: '#5c5c5c',
+        night: '#000000',
+        bone: '#f7f7f4',
+        smoke: '#b8b8b8',
+        ash: '#8c8c8c',
+        line: '#3d3d3d',
         chart: {
           'tooltip-background': 'var(--chart-tooltip-background)',
           'tooltip-foreground': 'var(--chart-tooltip-foreground)',
@@ -23,9 +36,11 @@ export default {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         display: ['Outfit', 'Inter', 'system-ui', 'sans-serif'],
+        serif: ['"PT Serif"', ...defaultTheme.fontFamily.serif],
+        mono: ['"JetBrains Mono"', ...defaultTheme.fontFamily.mono],
       },
       boxShadow: {
-        card: '0 1px 2px rgba(20,20,40,0.04), 0 8px 30px -18px rgba(20,20,60,0.18)',
+        card: 'none',
       },
       maxWidth: {
         content: '1200px',

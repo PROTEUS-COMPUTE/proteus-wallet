@@ -272,7 +272,7 @@ export default function StakeForm({ api, from, balance, onClose }: Props) {
 
   return (
     <form onSubmit={submit} className="space-y-4">
-      <div className="inline-flex rounded-full border border-black/[0.08] p-0.5 text-[13px]">
+      <div className="inline-flex rounded-full border border-white/[0.09] p-0.5 text-[13px]">
         {(['unstake', 'stake'] as Mode[]).map((m) => (
           <button
             key={m}
@@ -285,7 +285,7 @@ export default function StakeForm({ api, from, balance, onClose }: Props) {
               // targets the miner's own hotkey where the rewards sit.
               setHotkey(m === 'stake' ? (delegation.hotkey ?? '') : (staked[0]?.hotkey ?? ''));
             }}
-            className={cx('px-4 py-1.5 rounded-full lowercase transition-colors', mode === m ? 'bg-ink text-white' : 'text-ink-soft hover:text-ink')}
+            className={cx('px-4 py-1.5 rounded-full lowercase transition-colors', mode === m ? 'bg-ink text-night' : 'text-ink-soft hover:text-ink')}
           >
             {m}
           </button>
@@ -312,7 +312,7 @@ export default function StakeForm({ api, from, balance, onClose }: Props) {
                     onClick={() => setLockDays(t.d)}
                     className={cx(
                       'rounded-full px-2.5 py-1 text-[11.5px] tabular-nums lowercase transition-colors',
-                      lockDays === t.d ? 'bg-ink text-white' : 'bg-white/60 text-ink-soft hover:text-ink'
+                      lockDays === t.d ? 'bg-ink text-night' : 'bg-white/[0.03] text-ink-soft hover:text-ink'
                     )}
                   >
                     {`${t.d}d · ${t.w}`}
@@ -322,7 +322,7 @@ export default function StakeForm({ api, from, balance, onClose }: Props) {
               <Button type="button" onClick={moveToRouter} disabled={busy}>
                 {busy ? 'signing…' : `move & lock for ${lockDays} days`}
               </Button>
-              <p className="text-[11.5px] text-faint lowercase">
+              <p className="text-[11.5px] text-muted lowercase">
                 one signature. unstakes from your hotkey and delegates to the router, locked for
                 {' '}{lockDays} days then returned to your balance on its own, and rolls back
                 entirely if anything fails.
@@ -351,7 +351,7 @@ export default function StakeForm({ api, from, balance, onClose }: Props) {
                 onClick={() => setLockDays(t.d)}
                 className={cx(
                   'rounded-full px-2.5 py-1 text-[11.5px] tabular-nums lowercase transition-colors',
-                  lockDays === t.d ? 'bg-ink text-white' : 'bg-white/60 text-ink-soft hover:text-ink'
+                  lockDays === t.d ? 'bg-ink text-night' : 'bg-white/[0.03] text-ink-soft hover:text-ink'
                 )}
               >
                 {`${t.d}d · ${t.w}`}
@@ -359,7 +359,7 @@ export default function StakeForm({ api, from, balance, onClose }: Props) {
             ))}
           </div>
 
-          <p className="text-[11px] text-faint lowercase">
+          <p className="text-[11px] text-muted lowercase">
             {`locked ${lockDays} days, then it returns to your balance on its own. enforced by the chain, never held by us.`}{' '}
             first payout at the next epoch.{' '}
             <button
@@ -385,7 +385,7 @@ export default function StakeForm({ api, from, balance, onClose }: Props) {
           <select
             value={hotkey}
             onChange={(e) => setHotkey(e.target.value)}
-            className="w-full rounded-lg border border-black/[0.1] bg-white px-3 py-2.5 text-[13.5px] font-mono"
+            className="w-full rounded-lg border border-white/[0.12] bg-night px-3 py-2.5 text-[13.5px] font-mono"
           >
             {staked.map((s) => (
               <option key={s.hotkey} value={s.hotkey}>
@@ -414,7 +414,7 @@ export default function StakeForm({ api, from, balance, onClose }: Props) {
           {mode === 'unstake' ? 'staked' : 'available'}: {formatPrts(max)} prts
         </p>
         {dailyCap !== null && (
-          <p className={cx('text-[12px] lowercase mt-1', overCap ? 'text-amber-600' : 'text-faint')}>
+          <p className={cx('text-[12px] lowercase mt-1', overCap ? 'text-amber-400' : 'text-muted')}>
             today you can unstake up to {formatPrts(dailyCap)} prts · 1.5% of your holdings a day
             {overCap ? ' · more than this is rejected today' : ''}
           </p>

@@ -6,8 +6,8 @@
 
 :root {
   --color-brand-lime: #9fff00;
-  --color-bg-base: #EDEEF5;
-  --color-ink: #1a1a1a;
+  --color-bg-base: #000000;
+  --color-ink: #f7f7f4;
 }
 
 html {
@@ -16,6 +16,69 @@ html {
 
 body {
   @apply bg-bg-base text-ink font-sans antialiased;
+}
+
+/* ---------------------------------------------------------------- night --
+   The landing's night charter (proteus-landing/src/index.css), ported.
+   The dotted floor is fixed on the body, so no wrapper can hide it. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(85, 85, 85, 0.9) 1px, transparent 1.2px) 0 0 / 44px 44px;
+}
+
+/* the live dot field (src/lib/dot-field.ts) takes over once it mounts */
+.dot-field {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+body.dot-field-on::before {
+  display: none;
+}
+
+/* one accent word per headline, written as <em> */
+:is(h1, h2, h3) em {
+  font-style: italic;
+  color: var(--color-brand-lime);
+}
+
+h1 em {
+  animation: lime-breath 4.5s ease-in-out infinite;
+}
+
+@keyframes lime-breath {
+  0%,
+  100% {
+    opacity: 0.86;
+    text-shadow: 0 0 0 rgba(159, 255, 0, 0);
+  }
+  50% {
+    opacity: 1;
+    text-shadow: 0 0 18px rgba(159, 255, 0, 0.22);
+  }
+}
+
+/* live status dot: a lime ring that swells and fades */
+.pulse-ring {
+  animation: pulse-ring 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse-ring {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(159, 255, 0, 0.36);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(159, 255, 0, 0);
+  }
 }
 
 /* lime highlight marker on a keyword */
@@ -34,7 +97,7 @@ body {
     border: 1px solid #383838;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 2px 8px rgba(20, 20, 40, 0.32);
+      0 2px 8px rgba(0, 0, 0, 0.6);
     color: #fff;
     /* a gradient cannot be interpolated, so the fill snaps and only the rim and
        shadow animate */
@@ -53,32 +116,36 @@ body {
     box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
   }
 
+  /* The light twin was a white pill; on the night page it turns into the
+     landing's hairline button: transparent, grey rim, lime on hover. */
   .btn-raised-light {
-    background: linear-gradient(180deg, #ffffff, #e7e9f1);
-    border: 1px solid rgba(20, 20, 40, 0.14);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.9),
-      0 2px 8px rgba(20, 20, 40, 0.14);
-    color: var(--color-ink);
+    background: transparent;
+    border: 1px solid #3d3d3d;
+    color: #b8b8b8;
     transition:
       border-color 0.18s ease,
-      box-shadow 0.18s ease,
+      color 0.18s ease,
       transform 0.18s ease;
   }
 
   .btn-raised-light:hover {
-    background: linear-gradient(180deg, #ffffff, #dfe2ed);
-    border-color: rgba(20, 20, 40, 0.26);
+    border-color: var(--color-brand-lime);
+    color: var(--color-brand-lime);
   }
 
   .btn-raised-light:active {
-    box-shadow: inset 0 2px 6px rgba(20, 20, 40, 0.18);
+    transform: translateY(1px);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  h1 em,
+  .pulse-ring {
+    animation: none;
   }
 }
 
@@ -135,6 +202,9 @@ body {
     --chart-scale-04: oklch(0.58 0.06 270);
     --chart-scale-05: oklch(0.68 0.07 270);
     --chart-scale-pattern-color: oklch(0.145 0 0);
+    --chart-tooltip-background: #0a0a0a;
+    --chart-tooltip-foreground: #f7f7f4;
+    --chart-tooltip-muted: #8c8c8c;
   }
 }
 
@@ -144,7 +214,7 @@ body {
    overlays instead: no track, a hairline thumb that only firms up on hover. */
 .scroll-thin {
   scrollbar-width: thin;                              /* firefox */
-  scrollbar-color: rgb(0 0 0 / 0.16) transparent;
+  scrollbar-color: rgb(255 255 255 / 0.16) transparent;
 }
 .scroll-thin::-webkit-scrollbar {
   width: 5px;
@@ -155,9 +225,9 @@ body {
   background: transparent;
 }
 .scroll-thin::-webkit-scrollbar-thumb {
-  background: rgb(0 0 0 / 0.14);
+  background: rgb(255 255 255 / 0.14);
   border-radius: 9999px;
 }
 .scroll-thin:hover::-webkit-scrollbar-thumb {
-  background: rgb(0 0 0 / 0.26);
+  background: rgb(255 255 255 / 0.26);
 }

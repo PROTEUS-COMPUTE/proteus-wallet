@@ -52,7 +52,7 @@ export default function ImportAccount({ onDone }: Props) {
 
   return (
     <form onSubmit={submit} className="space-y-4">
-      <div className="inline-flex rounded-full border border-black/[0.07] bg-white p-1">
+      <div className="inline-flex rounded-full border border-white/[0.09] bg-night p-1">
         {(['mnemonic', 'json'] as Mode[]).map((m) => (
           <button
             key={m}
@@ -63,7 +63,7 @@ export default function ImportAccount({ onDone }: Props) {
             }}
             className={cx(
               'px-4 py-1.5 text-[13px] lowercase rounded-full transition-colors',
-              mode === m ? 'bg-ink text-white' : 'text-muted hover:text-ink'
+              mode === m ? 'bg-ink text-night' : 'text-muted hover:text-ink'
             )}
           >
             {m === 'mnemonic' ? 'mnemonic phrase' : 'keystore json'}
@@ -115,7 +115,7 @@ export default function ImportAccount({ onDone }: Props) {
               type="file"
               accept="application/json,.json"
               onChange={(e) => onFile(e.target.files?.[0])}
-              className="block w-full text-[13.5px] text-ink-soft file:mr-3 file:rounded-full file:border-0 file:bg-ink file:text-white file:px-4 file:py-2 file:text-[13px] file:lowercase file:cursor-pointer"
+              className="block w-full text-[13.5px] text-ink-soft file:mr-3 file:rounded-full file:border-0 file:bg-ink file:text-night file:px-4 file:py-2 file:text-[13px] file:lowercase file:cursor-pointer"
             />
           </div>
           <div>

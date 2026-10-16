@@ -95,7 +95,7 @@ export default function CreateAccount({ onDone }: Props) {
           address: <span className="font-mono text-ink-soft">{result.json.address}</span>
         </div>
 
-        <div className="rounded-[14px] border border-black/10 bg-black/[0.02] p-5 space-y-3">
+        <div className="rounded-[14px] border border-white/[0.12] bg-white/[0.02] p-5 space-y-3">
           <div className="flex items-center gap-2">
             <Cpu className="w-4 h-4 text-ink-soft" />
             <span className="text-[14px] font-medium lowercase">use this account in your miner</span>
@@ -104,7 +104,7 @@ export default function CreateAccount({ onDone }: Props) {
             this same account can be your miner's coldkey, the address where $prts rewards land. on
             your mining machine, run this command and paste the 12 words above when prompted:
           </p>
-          <div className="flex items-center gap-2 rounded-[10px] border border-black/10 bg-black/[0.04] px-3 py-2.5">
+          <div className="flex items-center gap-2 rounded-[10px] border border-white/[0.12] bg-white/[0.04] px-3 py-2.5">
             <code className="flex-1 text-[13px] font-mono text-ink-soft break-all">{REGEN_CMD}</code>
             <button
               type="button"

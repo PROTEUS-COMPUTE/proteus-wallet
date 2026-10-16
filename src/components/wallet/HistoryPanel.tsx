@@ -35,7 +35,7 @@ function Row({ tx }: { tx: Tx }) {
         <span
           className={cx(
             'flex items-center justify-center w-6 h-6 rounded-full shrink-0',
-            inbound ? 'bg-brand-lime/25 text-brand-lime-deep' : 'bg-black/[0.05] text-ink-soft'
+            inbound ? 'bg-brand-lime/25 text-brand-lime-deep' : 'bg-white/[0.05] text-ink-soft'
           )}
         >
           {inbound ? <ArrowDownLeft className="w-3.5 h-3.5" /> : <ArrowUpRight className="w-3.5 h-3.5" />}

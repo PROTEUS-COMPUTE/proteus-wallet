@@ -43,7 +43,7 @@ function Row({ label, value }: { label: string; value: string }) {
         type="button"
         onClick={copy}
         title={`copy the ${label}`}
-        className="shrink-0 p-1.5 rounded-md text-ink-soft hover:text-ink hover:bg-black/[0.04] transition-colors"
+        className="shrink-0 p-1.5 rounded-md text-ink-soft hover:text-ink hover:bg-white/[0.04] transition-colors"
       >
         {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
       </button>
@@ -58,7 +58,7 @@ export default function TxReceipt({ what, txHash, blockNumber, onClose }: Props)
         {what} confirmed{blockNumber !== null ? ` in block ${blockNumber.toLocaleString('en-US')}` : ''}
       </InfoNote>
 
-      <div className="rounded-[12px] border border-black/[0.08] px-3.5 py-1">
+      <div className="rounded-[12px] border border-white/[0.09] px-3.5 py-1">
         <Row label="transaction hash" value={txHash} />
         {blockNumber !== null && <Row label="block" value={String(blockNumber)} />}
       </div>

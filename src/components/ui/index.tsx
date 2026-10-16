@@ -7,7 +7,8 @@ import type {
 
 /*
  * plain in-house components (the coss/ui registry could not be installed
- * in non-interactive mode), same visual tokens as the proteus landing.
+ * in non-interactive mode), in the landing's night charter: hairline boxes,
+ * square corners, lime for the one thing that is on.
  */
 
 export function cx(...parts: Array<string | false | null | undefined>): string {
@@ -18,7 +19,7 @@ export function Card({ className, children }: { className?: string; children: Re
   return (
     <div
       className={cx(
-        'rounded-[8px] border border-white/70 bg-white/30 backdrop-blur-2xl shadow-card',
+        'border border-line bg-night/70 backdrop-blur-[2px]',
         className
       )}
     >
@@ -28,21 +29,21 @@ export function Card({ className, children }: { className?: string; children: Re
 }
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={cx('animate-pulse rounded-lg bg-bg-2', className)} aria-hidden="true" />;
+  return <div className={cx('animate-pulse bg-white/[0.06]', className)} aria-hidden="true" />;
 }
 
 type BadgeTone = 'lime' | 'neutral' | 'red';
 
 export function Badge({ tone = 'neutral', children }: { tone?: BadgeTone; children: ReactNode }) {
   const tones: Record<BadgeTone, string> = {
-    lime: 'bg-brand-lime/25 text-ink border-brand-lime-deep/30',
-    neutral: 'bg-white/70 text-ink-soft border-black/[0.07]',
-    red: 'bg-red-50 text-red-700 border-red-200',
+    lime: 'bg-brand-lime/[0.08] text-bone border-brand-lime/40',
+    neutral: 'bg-night/70 text-smoke border-line',
+    red: 'bg-red-500/10 text-red-400 border-red-500/30',
   };
   return (
     <span
       className={cx(
-        'inline-flex items-center gap-2 text-[12.5px] lowercase rounded-full px-3 py-1.5 border',
+        'inline-flex items-center gap-2 text-[12.5px] lowercase px-3 py-1.5 border',
         tones[tone]
       )}
     >
@@ -54,7 +55,7 @@ export function Badge({ tone = 'neutral', children }: { tone?: BadgeTone; childr
 /** status dot (green / red / gray) */
 export function Dot({ color }: { color: 'lime' | 'red' | 'gray' }) {
   const map = {
-    lime: 'bg-brand-lime-deep shadow-[0_0_0_3px_rgba(159,255,0,0.22)] animate-pulse',
+    lime: 'bg-brand-lime pulse-ring',
     red: 'bg-red-500 shadow-[0_0_0_3px_rgba(239,68,68,0.18)]',
     gray: 'bg-faint',
   };
@@ -73,13 +74,13 @@ export function Button({ variant = 'primary', className, ...props }: ButtonProps
   const variants = {
     primary: 'btn-raised',
     ghost: 'btn-raised-light',
-    lime: 'bg-brand-lime text-ink hover:bg-brand-lime-deep transition-colors',
+    lime: 'bg-brand-lime text-night hover:bg-[#c4ff5a] transition-colors',
   };
   return (
     <button
       {...props}
       className={cx(
-        'inline-flex items-center justify-center gap-1.5 text-sm lowercase font-medium px-4 py-2.5 rounded-full disabled:opacity-40 disabled:pointer-events-none',
+        'inline-flex items-center justify-center gap-1.5 text-sm lowercase font-medium px-4 py-2.5 disabled:opacity-40 disabled:pointer-events-none',
         variants[variant],
         className
       )}
@@ -92,7 +93,7 @@ export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElem
     <input
       {...props}
       className={cx(
-        'w-full bg-white border border-black/[0.07] rounded-xl px-4 py-2.5 text-[15px] text-ink placeholder-faint outline-none focus:border-brand-lime-deep transition-colors',
+        'w-full bg-night border border-line px-4 py-2.5 text-[15px] text-ink placeholder-faint outline-none focus:border-brand-lime transition-colors',
         className
       )}
     />
@@ -104,7 +105,7 @@ export function Textarea({ className, ...props }: TextareaHTMLAttributes<HTMLTex
     <textarea
       {...props}
       className={cx(
-        'w-full bg-white border border-black/[0.07] rounded-xl px-4 py-2.5 text-[15px] text-ink placeholder-faint outline-none focus:border-brand-lime-deep transition-colors resize-y',
+        'w-full bg-night border border-line px-4 py-2.5 text-[15px] text-ink placeholder-faint outline-none focus:border-brand-lime transition-colors resize-y',
         className
       )}
     />
@@ -117,7 +118,7 @@ export function Label({ children }: { children: ReactNode }) {
 
 export function ErrorNote({ children }: { children: ReactNode }) {
   return (
-    <p className="text-[13.5px] text-red-700 bg-red-50 border border-red-200 rounded-xl px-3.5 py-2.5 lowercase">
+    <p className="text-[13.5px] text-red-400 bg-red-500/10 border border-red-500/30 px-3.5 py-2.5 lowercase">
       {children}
     </p>
   );
@@ -125,7 +126,7 @@ export function ErrorNote({ children }: { children: ReactNode }) {
 
 export function InfoNote({ children }: { children: ReactNode }) {
   return (
-    <p className="text-[13.5px] text-ink-soft bg-bg-2/60 border border-black/[0.05] rounded-xl px-3.5 py-2.5 lowercase">
+    <p className="text-[13.5px] text-ink-soft bg-white/[0.03] border border-line px-3.5 py-2.5 lowercase">
       {children}
     </p>
   );
